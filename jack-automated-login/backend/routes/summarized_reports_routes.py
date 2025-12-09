@@ -5,7 +5,7 @@ from services.summarized_reports_service import ReportService
 
 reports_bp = Blueprint("reports-details", __name__)
 
-@reports_bp.get("/")
+@reports_bp.route("/", methods=["GET", "POST"], strict_slashes=False)
 def get_all_reports_details():
     reports = ReportService.get_all_reports_details()
     return jsonify(reports), 200

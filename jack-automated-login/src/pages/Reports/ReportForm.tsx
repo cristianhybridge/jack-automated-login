@@ -1,62 +1,99 @@
 ﻿import {
+  Box,
+  Button,
   FormControl,
   FormLabel,
   HStack,
   Input,
   Textarea,
+  VStack,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   PostReportDetailsSchema,
-  ReportDetailsType,
+  PostReportDetailsType,
 } from "../../schemes/ReportDetails.scheme.ts";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { getToday } from "../../utils/GetTodayDate.ts";
+import { useCreateReports } from "../../hooks/useReportDetails.ts";
 
-type Props = {};
+type Props = {
+  onSuccess?: () => void;
+};
 
-function ReportForm({}: Props) {
-  const postForm = useForm<ReportDetailsType>({
+function ReportForm({ onSuccess }: Props) {
+  const todayDate = getToday().toDateString();
+  const form = useForm<PostReportDetailsType>({
     resolver: zodResolver(PostReportDetailsSchema),
+    defaultValues: {
+      title: "",
+      work_area_id: 0,
+      responsible_id: 0,
+      created_at: todayDate,
+      enterprise_shift_id: 0,
+      message: "",
+    },
   });
+
+  const { mutate } = useCreateReports();
+
+  const submitForm = (data: PostReportDetailsType) => {
+    mutate(data, {
+      onSuccess: () => {
+        form.reset();
+        if (onSuccess) onSuccess();
+      },
+    });
+  };
+
   return (
-    <>
-      <form>
-        <HStack className="mb-3">
+    <form onSubmit={form.handleSubmit(submitForm)}>
+      <VStack spacing={5} w="100%">
+        <HStack w="100%" spacing={4}>
           <FormControl id="title">
-            <FormLabel htmlFor="title" className="form-FormLabel">
-              Título
-            </FormLabel>
-            <Input type="text" id="title" className="form-control" />
+            <FormLabel>Título</FormLabel>
+            <Input type="text" {...form.register("title")} />
           </FormControl>
-          <FormControl>
-            <FormLabel htmlFor="" className="form-FormLabel">
-              Área
-            </FormLabel>
-            <Input type="text" id="work_area" className="form-control" />
+
+          <FormControl id="work_area_id">
+            <FormLabel>Área</FormLabel>
+            <Input type="number" {...form.register("work_area_id")} />
           </FormControl>
         </HStack>
-        <HStack className="mb-3">
-          <FormControl>
-            <FormLabel htmlFor="" className="form-FormLabel">
-              Responsable
-            </FormLabel>
-            <Input type="text" id="responsible" className="form-control" />
+
+        <HStack w="100%" spacing={4}>
+          <FormControl id="responsible_id">
+            <FormLabel>No. Empleado</FormLabel>
+            <Input type="number" {...form.register("responsible_id")} />
           </FormControl>
-          <FormControl>
-            <FormLabel htmlFor="" className="form-FormLabel">
-              Fecha
-            </FormLabel>
-            <Input type="text" id="created_date" className="form-control" />
+
+          <FormControl id="created_at">
+            <FormLabel>Fecha</FormLabel>
+            <Input type="date" {...form.register("created_at")} />
           </FormControl>
         </HStack>
-        <div className="mb-3">
-          <FormLabel htmlFor="" className="form-FormLabel">
-            Descripción
-          </FormLabel>
-          <Textarea id="message" className="form-control" />
-        </div>
-      </form>
-    </>
+
+        <FormControl id="enterprise_shift_id">
+          <FormLabel>Turno</FormLabel>
+          <Input type="number" {...form.register("enterprise_shift_id")} />
+        </FormControl>
+
+        <FormControl id="message">
+          <FormLabel>Descripción</FormLabel>
+          <Textarea {...form.register("message")} placeholder="Detalles..." />
+        </FormControl>
+
+        <Box w="100%" textAlign="right">
+          <Button
+            colorScheme="purple"
+            type="submit"
+            // isLoading={isLoading} // disable + show spinner while posting
+          >
+            Enviar reporte
+          </Button>
+        </Box>
+      </VStack>
+    </form>
   );
 }
 

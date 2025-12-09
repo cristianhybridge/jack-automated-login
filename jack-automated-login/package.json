@@ -14,6 +14,7 @@
     "@hookform/resolvers": "^3.3.4",
     "@react-buddy/ide-toolbox": "^2.4.0",
     "@react-buddy/palette-chakra-ui": "^2.3.1",
+    "@tanstack/react-query": "^5.37.1",
     "axios": "^1.6.8",
     "prettier": "^3.7.4",
     "react": "^18.2.0",
